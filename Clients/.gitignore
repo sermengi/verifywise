@@ -27,3 +27,6 @@ dist-ssr
 
 # *.dev
 *.prod
+
+# TypeScript build cache
+*.tsbuildinfo
