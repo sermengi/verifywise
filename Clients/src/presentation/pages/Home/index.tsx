@@ -10,6 +10,7 @@ import React, {
   useCallback,
   useMemo,
   FC,
+  useContext,
 } from "react";
 import { Box, Stack, Typography, useTheme } from "@mui/material";
 import PageBreadcrumbs from "../../components/Breadcrumbs/PageBreadcrumbs";
@@ -17,18 +18,18 @@ import Grid from "@mui/material/Grid2";
 import { styles } from "./styles";
 import { postAutoDrivers } from "../../../application/repository/entity.repository";
 import { ProjectCardProps } from "../../components/ProjectCard";
-import useProjectStatus, {
+import {
   Assessments,
   Controls,
 } from "../../../application/hooks/useProjectStatus";
 import CustomizableSkeleton from "../../vw-v2-components/Skeletons";
 import { Card } from "../../components/ProjectCard/styles";
+import { VerifyWiseContext } from "../../../application/contexts/VerifyWise.context";
 import CreateDemoData from "../../components/CreateDemoData";
 import CustomizableButton from "../../vw-v2-components/Buttons";
 import NoProject from "../../components/NoProject/NoProject";
 import { AlertProps } from "../../../domain/interfaces/iAlert";
 import { handleAlert } from "../../../application/tools/alertUtils";
-import { useAuth } from "../../../application/hooks/useAuth";
 import { getAllProjects } from "../../../application/repository/project.repository";
 
 // Lazy load components
@@ -112,10 +113,8 @@ const Home: FC<HomeProps> = ({ onProjectUpdate }) => {
     newProjectData,
     () => setIsNewProjectCreate(false)
   );
-  
-  const { userId } = useAuth();
-  const { projectStatus, loading: loadingProjectStatus, error: errorFetchingProjectStatus } =
-    useProjectStatus({ userId });
+  const { projectStatus, loadingProjectStatus, errorFetchingProjectStatus } =
+    useContext(VerifyWiseContext);
 
   const [alert, setAlert] = useState<AlertProps | null>(null);
   const [openDemoDataModal, setOpenDemoDataModal] = useState(false);
@@ -123,7 +122,7 @@ const Home: FC<HomeProps> = ({ onProjectUpdate }) => {
     setOpenDemoDataModal((prev) => !prev);
   }, []);
 
-  const [_isCreatingDemoData, setIsCreatingDemoData] = useState(false);
+  const [isCreatingDemoData, setIsCreatingDemoData] = useState(false);
 
   const createDemoData = useCallback(async () => {
     setIsCreatingDemoData(true);
@@ -151,6 +150,13 @@ const Home: FC<HomeProps> = ({ onProjectUpdate }) => {
       }, 500);
     }
   }, []);
+
+  // Later in the component's render/return block:
+  <CustomizableButton
+    text="Create Demo Data"
+    isDisabled={isCreatingDemoData}
+    onClick={handleOpenOrCloseDemoDataModal}
+  />;
 
   const newProjectChecker = useCallback(
     (data: { isNewProject: boolean; project: any }) => {
@@ -425,16 +431,6 @@ const Home: FC<HomeProps> = ({ onProjectUpdate }) => {
             </Suspense>
           </Stack>
         </>
-      ) : isLoading || !projects ? (
-        <CustomizableSkeleton
-          variant="rectangular"
-          minWidth="200"
-          width={"100%"}
-          height={"100%"}
-          maxWidth="1400"
-          minHeight="200"
-          maxHeight="100vh"
-        />
       ) : (
         NoProjectsMessage
       )}

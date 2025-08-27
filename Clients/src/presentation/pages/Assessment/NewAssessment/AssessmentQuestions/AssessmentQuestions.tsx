@@ -150,7 +150,7 @@ const AssessmentQuestions = ({
                   sx={{
                     mt: 2,
                     borderRadius: 2,
-                    minWidth: 155,      // ✅ minimum width
+                    width: 155,
                     height: 25,
                     fontSize: 11,
                     border: "1px solid #D0D5DD",
@@ -162,7 +162,7 @@ const AssessmentQuestions = ({
                   }
                   onClick={handleOpenFileUploadModal}
                 >
-                  Add, remove or download evidence
+                  Add/Remove evidence
                 </Button>
                 <Typography
                   sx={{ fontSize: 11, color: "#344054", fontWeight: "300" }}

@@ -39,9 +39,7 @@ interface NewModelInventoryProps {
 }
 
 interface NewModelInventoryFormValues {
-  provider_model?: string; // Keep for backward compatibility
-  provider: string;
-  model: string;
+  provider_model: string;
   version: string;
   approver: string;
   capabilities: string[];
@@ -51,9 +49,7 @@ interface NewModelInventoryFormValues {
 }
 
 interface NewModelInventoryFormErrors {
-  provider_model?: string; // Keep for backward compatibility
-  provider?: string;
-  model?: string;
+  provider_model?: string;
   version?: string;
   approver?: string;
   capabilities?: string;
@@ -62,9 +58,7 @@ interface NewModelInventoryFormErrors {
 }
 
 const initialState: NewModelInventoryFormValues = {
-  provider_model: "", // Keep for backward compatibility
-  provider: "",
-  model: "",
+  provider_model: "",
   version: "",
   approver: "",
   capabilities: [],
@@ -218,12 +212,8 @@ const NewModelInventory: FC<NewModelInventoryProps> = ({
   const validateForm = (): boolean => {
     const newErrors: NewModelInventoryFormErrors = {};
 
-    if (!values.provider || !String(values.provider).trim()) {
-      newErrors.provider = "Provider is required.";
-    }
-
-    if (!values.model || !String(values.model).trim()) {
-      newErrors.model = "Model is required.";
+    if (!values.provider_model || !String(values.provider_model).trim()) {
+      newErrors.provider_model = "Provider/Model is required.";
     }
 
     if (!values.approver || !String(values.approver).trim()) {
@@ -383,7 +373,7 @@ const NewModelInventory: FC<NewModelInventoryProps> = ({
             sx={{ flex: 1, overflow: "auto", marginBottom: theme.spacing(8) }}
           >
             <Stack gap={theme.spacing(8)}>
-              {/* First Row: Provider, Model, Version */}
+              {/* First Row: Provider/Model, Version, Approver */}
               <Stack
                 direction={"row"}
                 justifyContent={"space-between"}
@@ -391,28 +381,15 @@ const NewModelInventory: FC<NewModelInventoryProps> = ({
               >
                 <Suspense fallback={<div>Loading...</div>}>
                   <Field
-                    id="provider"
-                    label="Provider"
+                    id="provider-model"
+                    label="Provider/model"
                     width={220}
-                    value={values.provider}
-                    onChange={handleOnTextFieldChange("provider")}
-                    error={errors.provider}
+                    value={values.provider_model}
+                    onChange={handleOnTextFieldChange("provider_model")}
+                    error={errors.provider_model}
                     isRequired
                     sx={fieldStyle}
-                    placeholder="eg. OpenAI"
-                  />
-                </Suspense>
-                <Suspense fallback={<div>Loading...</div>}>
-                  <Field
-                    id="model"
-                    label="Model"
-                    width={220}
-                    value={values.model}
-                    onChange={handleOnTextFieldChange("model")}
-                    error={errors.model}
-                    isRequired
-                    sx={fieldStyle}
-                    placeholder="eg. GPT-4"
+                    placeholder="eg. OpenAI GPT-4"
                   />
                 </Suspense>
                 <Suspense fallback={<div>Loading...</div>}>
@@ -427,14 +404,6 @@ const NewModelInventory: FC<NewModelInventoryProps> = ({
                     placeholder="e.g., 4.0, 1.5"
                   />
                 </Suspense>
-              </Stack>
-
-              {/* Second Row: Approver, Status, Status Date */}
-              <Stack
-                direction={"row"}
-                justifyContent={"flex-start"}
-                gap={theme.spacing(8)}
-              >
                 <SelectComponent
                   id="approver"
                   label="Approver"
@@ -447,6 +416,14 @@ const NewModelInventory: FC<NewModelInventoryProps> = ({
                   placeholder="Select approver"
                   disabled={isLoadingUsers}
                 />
+              </Stack>
+
+              {/* Second Row: Status, Status Date */}
+              <Stack
+                direction={"row"}
+                justifyContent={"flex-start"}
+                gap={theme.spacing(8)}
+              >
                 <SelectComponent
                   items={statusOptions}
                   value={values.status}

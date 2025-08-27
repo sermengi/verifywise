@@ -25,8 +25,6 @@ import selectValidation from "../../../application/validations/selectValidation"
 
 import { apiServices } from "../../../infrastructure/api/networkServices";
 import { useSearchParams } from "react-router-dom";
-import useUsers from "../../../application/hooks/useUsers";
-import { useAuth } from "../../../application/hooks/useAuth";
 import { VerifyWiseContext } from "../../../application/contexts/VerifyWise.context";
 import dayjs from "dayjs";
 import {
@@ -128,13 +126,7 @@ const AddNewRiskForm: FC<AddNewRiskFormProps> = ({
 
   const [searchParams] = useSearchParams();
   const projectId = searchParams.get("projectId");
-  
-  const { userRoleName } = useAuth();
-  const { users } = useUsers();
-  
-  // Get inputValues from context (keeping this for now)
-  const { inputValues } = useContext(VerifyWiseContext) as any;
-  
+  const { inputValues, users, userRoleName } = useContext(VerifyWiseContext);
   const isEditingDisabled =
     !allowedRoles.projectRisks.edit.includes(userRoleName);
   const isCreatingDisabled =
@@ -527,7 +519,6 @@ const AddNewRiskForm: FC<AddNewRiskFormProps> = ({
               riskValues={riskValues}
               setRiskValues={setRiskValues}
               riskErrors={riskErrors}
-              userRoleName={userRoleName}
             />
           </TabPanel>
           <TabPanel value="mitigation" sx={{ p: "24px 0 0", maxHeight: 550 }}>
@@ -535,7 +526,6 @@ const AddNewRiskForm: FC<AddNewRiskFormProps> = ({
               mitigationValues={mitigationValues}
               setMitigationValues={setMitigationValues}
               migitateErrors={migitateErrors}
-              userRoleName={userRoleName}
             />
           </TabPanel>
         </Suspense>

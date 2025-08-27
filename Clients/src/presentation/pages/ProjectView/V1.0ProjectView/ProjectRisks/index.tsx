@@ -4,8 +4,6 @@ import { Project } from "../../../../../domain/types/Project";
 import { useSearchParams } from "react-router-dom";
 import useProjectRisks from "../../../../../application/hooks/useProjectRisks";
 import RisksCard from "../../../../components/Cards/RisksCard";
-import RiskVisualizationTabs from "../../../../components/RiskVisualization/RiskVisualizationTabs";
-import RiskFilters from "../../../../components/RiskVisualization/RiskFilters";
 import { rowStyle } from "./style";
 import CustomizableButton from "../../../../vw-v2-components/Buttons";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
@@ -89,11 +87,6 @@ const VWProjectRisks = ({ project }: { project?: Project }) => {
     riskLevel: number;
     reviewNotes: string;
   } | null>(null);
-  
-  // New state for enhanced risk visualization
-  const [selectedRisk, setSelectedRisk] = useState<ProjectRisk | null>(null);
-  const [filteredRisks, setFilteredRisks] = useState<ProjectRisk[]>([]);
-  const [, setActiveFilters] = useState<any>(null);
 
   const fetchProjectRisks = useCallback(async () => {
     try {
@@ -102,7 +95,6 @@ const VWProjectRisks = ({ project }: { project?: Project }) => {
       });
       setShowCustomizableSkeleton(false);
       setProjectRisks(response.data);
-      setFilteredRisks(response.data); // Initialize filtered risks
     } catch (error) {
       console.error("Error fetching project risks:", error);
       handleToast(
@@ -252,17 +244,6 @@ const VWProjectRisks = ({ project }: { project?: Project }) => {
     setCurrentPage(page);
   };
 
-  const handleRiskSelect = (risk: ProjectRisk) => {
-    setSelectedRisk(risk);
-  };
-
-  const handleRiskFilterChange = (filtered: ProjectRisk[], filters: any) => {
-    setFilteredRisks(filtered);
-    setActiveFilters(filters);
-  };
-
-
-
   return (
     <Stack className="vw-project-risks" key={refreshKey}>
       {alert && (
@@ -280,25 +261,7 @@ const VWProjectRisks = ({ project }: { project?: Project }) => {
       )}
       {isLoading.loading && <CustomizableToast title={isLoading.message} />}
       <Stack className="vw-project-risks-row" sx={rowStyle}>
-        <RisksCard 
-          risksSummary={projectRisksSummary} 
-        />
-      </Stack>
-      <br />
-      
-      <Stack spacing={3}>
-        {/* Risk Filters */}
-        <RiskFilters
-          risks={projectRisks}
-          onFilterChange={handleRiskFilterChange}
-        />
-        
-        {/* Risk Visualization Section */}
-        <RiskVisualizationTabs
-          risks={filteredRisks}
-          selectedRisk={selectedRisk}
-          onRiskSelect={handleRiskSelect}
-        />
+        <RisksCard risksSummary={projectRisksSummary} />
       </Stack>
       <br />
       <Stack

@@ -12,7 +12,6 @@ import FileTable from "../../components/Table/FileTable/FileTable";
 import { filesTableFrame, filesTablePlaceholder } from "./styles";
 import ProjectFilterDropdown from "../../components/Inputs/Dropdowns/ProjectFilter/ProjectFilterDropdown";
 import HelperDrawer from "../../components/Drawer/HelperDrawer";
-import HelperIcon from "../../components/HelperIcon";
 import evidencesHelpContent from "../../../presentation/helpers/evidences-help.html?raw";
 
 const COLUMN_NAMES = [
@@ -105,11 +104,7 @@ const FileManager: React.FC = (): JSX.Element => {
         helpContent={evidencesHelpContent}
         pageTitle="Evidences & Documents"
       />
-      <FileManagerHeader 
-        theme={theme} 
-        ref={refs[0]} 
-        onHelperClick={() => setIsHelperDrawerOpen(!isHelperDrawerOpen)}
-      />
+      <FileManagerHeader theme={theme} ref={refs[0]} />
       {/* Project filter dropdown */}
       {loadingProjects || loadingFiles ? (
         <>
@@ -142,22 +137,14 @@ const FileManager: React.FC = (): JSX.Element => {
  * Header component for the FileManager.
  * Uses React.forwardRef to handle the ref passed from the parent component.
  */
-const FileManagerHeader = forwardRef<HTMLDivElement, { theme: Theme; onHelperClick?: () => void }>(
-  ({ theme, onHelperClick }, ref) => (
+const FileManagerHeader = forwardRef<HTMLDivElement, { theme: Theme }>(
+  ({ theme }, ref) => (
     <Stack
       className="vwhome-header"
       ref={ref}
       data-joyride-id="file-manager-title"
     >
-      <Stack direction="row" alignItems="center" spacing={1}>
-        <Typography sx={vwhomeHeading}>Evidences & documents</Typography>
-        {onHelperClick && (
-          <HelperIcon 
-            onClick={onHelperClick}
-            size="small"
-          />
-        )}
-      </Stack>
+      <Typography sx={vwhomeHeading}>Evidences & documents</Typography>
       <Typography
         sx={{
           color: theme.palette.text.secondary,

@@ -27,20 +27,21 @@ import Field from "../../Inputs/Field";
 import Select from "../../Inputs/Select";
 import DatePicker from "../../Inputs/Datepicker";
 import { ReactComponent as Close } from "../../../assets/icons/close.svg";
-import { Suspense, useEffect, useMemo, useState } from "react";
+import { Suspense, useContext, useEffect, useMemo, useState } from "react";
 import dayjs, { Dayjs } from "dayjs";
+import {
+  createNewUser,
+  updateEntityById,
+} from "../../../../application/repository/entity.repository";
 import Alert from "../../Alert";
 import { checkStringValidation } from "../../../../application/validations/stringValidation";
-import { useAuth } from "../../../../application/hooks/useAuth";
-import { useProjects } from "../../../../application/hooks/useProjects";
-import useUsers from "../../../../application/hooks/useUsers";
+import { VerifyWiseContext } from "../../../../application/contexts/VerifyWise.context";
 import CustomizableToast from "../../../vw-v2-components/Toast";
 import { logEngine } from "../../../../application/tools/log.engine";
 import CustomizableButton from "../../../vw-v2-components/Buttons";
 import SaveIcon from "@mui/icons-material/Save";
 import { KeyboardArrowDown } from "@mui/icons-material";
 import allowedRoles from "../../../../application/constants/permissions";
-import { createNewVendor, update } from "../../../../application/repository/vendor.repository";
 
 export interface VendorDetails {
   id?: number;
@@ -121,9 +122,9 @@ const AddNewVendor: React.FC<AddNewVendorProps> = ({
   const [projectOptions, setProjectOptions] = useState<
     { _id: number; name: string }[]
   >([]);
-  const { userRoleName } = useAuth();
-  const { users } = useUsers();
-  const { projects } = useProjects();
+  const { dashboardValues, users, userRoleName } =
+    useContext(VerifyWiseContext);
+  const { projects } = dashboardValues;
 
   const isEditingDisabled = !allowedRoles.vendors.edit.includes(userRoleName);
 
@@ -348,7 +349,8 @@ const AddNewVendor: React.FC<AddNewVendorProps> = ({
   const createVendor = async (vendorDetails: object) => {
     setIsSubmitting(true);
     try {
-     const response = await createNewVendor({
+      const response = await createNewUser({
+        routeUrl: "/vendors",
         body: vendorDetails,
       });
 
@@ -402,8 +404,8 @@ const AddNewVendor: React.FC<AddNewVendorProps> = ({
   ) => {
     setIsSubmitting(true);
     try {
-      const response = await update({
-        id: vendorId,
+      const response = await updateEntityById({
+        routeUrl: `/vendors/${vendorId}`,
         body: updatedVendorDetails,
       });
 

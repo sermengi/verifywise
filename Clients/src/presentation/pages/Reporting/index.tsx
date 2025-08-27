@@ -33,7 +33,6 @@ const Reporting = () => {
         <ReportingHeader
           titlesx={styles.vwHeadingTitle}
           subsx={styles.vwSubHeadingTitle}
-          onHelperClick={() => setIsHelperDrawerOpen(!isHelperDrawerOpen)}
         />
       </Suspense>
 

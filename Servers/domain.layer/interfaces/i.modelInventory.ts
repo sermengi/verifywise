@@ -2,9 +2,7 @@ import { ModelInventoryStatus } from "../enums/model-inventory-status.enum";
 
 export interface IModelInventory {
   id?: number;
-  provider_model?: string; // Keep for backward compatibility during transition
-  provider: string;
-  model: string;
+  provider_model: string;
   version: string;
   approver: string;
   capabilities: string;

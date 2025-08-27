@@ -15,6 +15,7 @@ import {
   Suspense,
   Dispatch,
   SetStateAction,
+  useContext,
 } from "react";
 import Field from "../../Inputs/Field";
 import Select from "../../Inputs/Select";
@@ -27,6 +28,7 @@ import { aiLifecyclePhase, riskCategoryItems } from "../projectRiskValue";
 import { alertState } from "../../../../domain/interfaces/iAlert";
 import { KeyboardArrowDown } from "@mui/icons-material";
 import allowedRoles from "../../../../application/constants/permissions";
+import { VerifyWiseContext } from "../../../../application/contexts/VerifyWise.context";
 
 const RiskLevel = React.lazy(() => import("../../RiskLevel"));
 
@@ -34,7 +36,6 @@ interface RiskSectionProps {
   riskValues: RiskFormValues;
   setRiskValues: Dispatch<SetStateAction<RiskFormValues>>;
   riskErrors: RiskFormErrors;
-  userRoleName: string;
 }
 
 /**
@@ -70,9 +71,9 @@ const RiskSection: FC<RiskSectionProps> = ({
   riskValues,
   setRiskValues,
   riskErrors,
-  userRoleName
 }) => {
   const theme = useTheme();
+  const { userRoleName } = useContext(VerifyWiseContext);
   const isEditingDisabled =
     !allowedRoles.projectRisks.edit.includes(userRoleName);
 

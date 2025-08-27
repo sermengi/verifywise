@@ -15,17 +15,3 @@ export async function GetClausesByProjectFrameworkId({
   });
   return response.data;
 }
-
-export async function Iso27001GetClauseStructByFrameworkID({
-  routeUrl, // Example: /api/iso27001/clauses/struct/byProjectId/1
-  signal,
-  authToken = getAuthToken(),
-  responseType = "json",
-}: GetRequestParams): Promise<any> {
-  const response = await apiServices.get(routeUrl, {
-    headers: { Authorization: `Bearer ${authToken}` },
-    signal,
-    responseType,
-  });
-  return response;
-}

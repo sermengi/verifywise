@@ -10,13 +10,22 @@ import {
 import PageBreadcrumbs from "../../components/Breadcrumbs/PageBreadcrumbs";
 import TableWithPlaceholder from "../../components/Table/WithPlaceholder/index";
 import RiskTable from "../../components/Table/RisksTable";
-import { Suspense, useCallback, useEffect, useState, useMemo } from "react";
+import {
+  Suspense,
+  useCallback,
+  useContext,
+  useEffect,
+  useState,
+  useMemo,
+} from "react";
 import AddNewVendor from "../../components/Modals/NewVendor";
 import singleTheme from "../../themes/v1SingleTheme";
-import { useSelector } from "react-redux";
-import { extractUserToken } from "../../../application/tools/extractToken";
-import { AppState } from "../../../application/interfaces/appStates";
-import useUsers from "../../../application/hooks/useUsers";
+import { VerifyWiseContext } from "../../../application/contexts/VerifyWise.context";
+import {
+  deleteEntityById,
+  getAllEntities,
+  getEntityById,
+} from "../../../application/repository/entity.repository";
 import { tabPanelStyle, tabStyle } from "./style";
 import { logEngine } from "../../../application/tools/log.engine";
 import Alert from "../../components/Alert";
@@ -38,19 +47,8 @@ import useVendorRisks from "../../../application/hooks/useVendorRisks";
 import Select from "../../components/Inputs/Select";
 import allowedRoles from "../../../application/constants/permissions";
 import HelperDrawer from "../../components/Drawer/HelperDrawer";
-import HelperIcon from "../../components/HelperIcon";
 import vendorHelpContent from "../../../presentation/helpers/vendor-help.html?raw";
 import { getAllProjects } from "../../../application/repository/project.repository";
-import {
-  deleteVendor,
-  getAllVendors,
-  getVendorById,
-  getVendorsByProjectId,
-} from "../../../application/repository/vendor.repository";
-import {
-  deleteVendorRisk,
-  getVendorRiskById,
-} from "../../../application/repository/vendorRisk.repository";
 
 interface ExistingRisk {
   id?: number;
@@ -89,11 +87,7 @@ const Vendors = () => {
   const [value, setValue] = useState("1");
   const [projects, setProjects] = useState<Project[]>([]);
   const [vendors, setVendors] = useState<VendorDetails[]>([]);
-  const authToken = useSelector((state: AppState) => state.auth.authToken);
-  const userToken = extractUserToken(authToken);
-  const userRoleName = userToken?.roleName || "";
-  const { users } = useUsers();
-
+  const { users, userRoleName } = useContext(VerifyWiseContext);
   const [selectedVendor, setSelectedVendor] = useState<VendorDetails | null>(
     null
   );
@@ -167,13 +161,14 @@ const Vendors = () => {
     setIsVendorsLoading(true);
     if (!selectedProjectId) return;
     try {
-      const response =
+      const routeUrl =
         selectedProjectId === "all"
-          ? await getAllVendors({ signal })
-          : await getVendorsByProjectId({
-              projectId: parseInt(selectedProjectId),
-              signal,
-            });
+          ? "/vendors"
+          : `/vendors/project-id/${selectedProjectId}`;
+      const response = await getAllEntities({
+        routeUrl,
+        signal,
+      });
       if (response?.data) {
         setVendors(response.data);
       }
@@ -204,8 +199,8 @@ const Vendors = () => {
     setIsSubmitting(true);
 
     try {
-      const response = await deleteVendor({
-        id: Number(vendorId),
+      const response = await deleteEntityById({
+        routeUrl: `/vendors/${vendorId}`,
       });
 
       if (response.status === 202) {
@@ -262,11 +257,13 @@ const Vendors = () => {
       setTimeout(() => setAlert(null), 3000);
       return;
     }
+    const signal = createAbortController();
     setIsSubmitting(true);
 
     try {
-      const response = await deleteVendorRisk({
-        id: Number(riskId),
+      const response = await deleteEntityById({
+        routeUrl: `/vendorRisks/${riskId}`,
+        signal,
       });
 
       if (response.status === 202) {
@@ -321,8 +318,8 @@ const Vendors = () => {
       return;
     }
     try {
-      const response = await getVendorRiskById({
-        id: Number(riskId),
+      const response = await getEntityById({
+        routeUrl: `/vendorRisks/${riskId}`,
       });
       setSelectedRisk(response.data);
       setIsRiskModalOpen(true);
@@ -340,8 +337,8 @@ const Vendors = () => {
   };
   const handleEditVendor = async (id: number) => {
     try {
-      const response = await getVendorById({
-        id: Number(id),
+      const response = await getEntityById({
+        routeUrl: `/vendors/${id}`,
       });
       setSelectedVendor(response.data);
       setIsOpen(true);
@@ -455,13 +452,7 @@ const Vendors = () => {
               </Suspense>
             )}
             <Stack>
-              <Stack direction="row" alignItems="center" spacing={1}>
-                <Typography sx={vwhomeHeading}>Vendor list</Typography>
-                <HelperIcon 
-                  onClick={() => setIsHelperDrawerOpen(!isHelperDrawerOpen)}
-                  size="small"
-                />
-              </Stack>
+              <Typography sx={vwhomeHeading}>Vendor list</Typography>
               <Typography sx={singleTheme.textStyles.pageDescription}>
                 This table includes a list of external entities that provides
                 AI-related products, services, or components. You can create and

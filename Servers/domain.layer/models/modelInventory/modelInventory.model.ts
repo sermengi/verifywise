@@ -20,21 +20,9 @@ export class ModelInventoryModel
 
   @Column({
     type: DataType.STRING,
-    allowNull: true, // Allow null during transition
-  })
-  provider_model?: string;
-
-  @Column({
-    type: DataType.STRING,
     allowNull: false,
   })
-  provider!: string;
-
-  @Column({
-    type: DataType.STRING,
-    allowNull: false,
-  })
-  model!: string;
+  provider_model!: string;
 
   @Column({
     type: DataType.STRING,
@@ -95,19 +83,11 @@ export class ModelInventoryModel
    * Validate model inventory data before saving
    */
   async validateModelInventoryData(): Promise<void> {
-    if (!this.provider?.trim()) {
+    if (!this.provider_model?.trim()) {
       throw new ValidationException(
-        "Provider is required",
-        "provider",
-        this.provider
-      );
-    }
-
-    if (!this.model?.trim()) {
-      throw new ValidationException(
-        "Model is required",
-        "model",
-        this.model
+        "Provider/Model is required",
+        "provider_model",
+        this.provider_model
       );
     }
 
@@ -230,9 +210,7 @@ export class ModelInventoryModel
   toSafeJSON(): any {
     return {
       id: this.id,
-      provider_model: this.provider_model, // Keep for backward compatibility
-      provider: this.provider,
-      model: this.model,
+      provider_model: this.provider_model,
       version: this.version,
       approver: this.approver,
       capabilities: this.capabilities
@@ -260,9 +238,7 @@ export class ModelInventoryModel
   toJSON(): any {
     return {
       id: this.id,
-      provider_model: this.provider_model, // Keep for backward compatibility
-      provider: this.provider,
-      model: this.model,
+      provider_model: this.provider_model,
       version: this.version,
       approver: this.approver,
       capabilities: this.capabilities
@@ -319,7 +295,7 @@ export class ModelInventoryModel
    * Get full model name (provider + version)
    */
   getFullModelName(): string {
-    return `${this.provider} ${this.model} ${this.version}`.trim();
+    return `${this.provider_model} ${this.version}`.trim();
   }
 
   /**
@@ -329,9 +305,7 @@ export class ModelInventoryModel
     data: Partial<IModelInventory>
   ): ModelInventoryModel {
     const modelInventory = new ModelInventoryModel({
-      provider_model: data.provider_model || "", // Keep for backward compatibility
-      provider: data.provider || "",
-      model: data.model || "",
+      provider_model: data.provider_model || "",
       version: data.version || "",
       approver: data.approver || "",
       capabilities: Array.isArray(data.capabilities)
@@ -358,12 +332,6 @@ export class ModelInventoryModel
     // Update only the fields that are provided
     if (data.provider_model !== undefined) {
       existingModel.provider_model = data.provider_model;
-    }
-    if (data.provider !== undefined) {
-      existingModel.provider = data.provider;
-    }
-    if (data.model !== undefined) {
-      existingModel.model = data.model;
     }
     if (data.version !== undefined) {
       existingModel.version = data.version;

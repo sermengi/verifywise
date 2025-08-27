@@ -1,29 +1,18 @@
 import { Stack, Typography } from '@mui/material';
 import React from 'react';
-import HelperIcon from '../../HelperIcon';
 
 interface HeaderProps {
   titlesx?: any;
-  subsx?: any;
-  onHelperClick?: () => void;
+  subsx?: any
 }
 
 const ReportingHeader: React.FC<HeaderProps> = ({
   titlesx,
-  subsx,
-  onHelperClick
+  subsx
 }) => {
   return(
     <Stack className='vwhome-header'>
-      <Stack direction="row" alignItems="center" spacing={1}>
-        <Typography sx={{...titlesx}}>Reporting</Typography>
-        {onHelperClick && (
-          <HelperIcon 
-            onClick={onHelperClick}
-            size="small"
-          />
-        )}
-      </Stack>
+      <Typography sx={{...titlesx}}>Reporting</Typography>
       <Typography
         sx={{...subsx}}
       >

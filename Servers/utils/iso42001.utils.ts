@@ -78,9 +78,9 @@ export const countAnnexCategoriesISOByProjectId = async (
       replacements: { projects_frameworks_id: projectFrameworkId },
     }
   )) as [
-    { totalAnnexcategories: string; doneAnnexcategories: string }[],
-    number,
-  ];
+      { totalAnnexcategories: string; doneAnnexcategories: string }[],
+      number
+    ];
   return result[0][0];
 };
 
@@ -279,8 +279,7 @@ export const getClausesByProjectIdQuery = async (
     }
   )) as [{ id: number }[], number];
   const msc = await getManagementSystemClausesQuery(
-    subClauseIds[0].map((subClause) => subClause.id),
-    tenant
+    subClauseIds[0].map((subClause) => subClause.id), tenant
   );
   return msc;
 };
@@ -291,8 +290,7 @@ export const getManagementSystemClausesQuery = async (
   transaction: Transaction | null = null
 ) => {
   const clausesStruct = (await getAllClausesQuery(
-    tenant,
-    transaction
+    tenant, transaction
   )) as (ClauseStructISOModel &
     Partial<SubClauseStructISOModel & SubClauseISOModel>[])[]; // wrong type
   let clausesStructMap = new Map();
@@ -301,11 +299,7 @@ export const getManagementSystemClausesQuery = async (
     clausesStructMap.set(clauseStruct.id, i);
   }
   for (let subClauseId of subClauseIds) {
-    const subClause = await getSubClauseByIdQuery(
-      subClauseId,
-      tenant,
-      transaction
-    );
+    const subClause = await getSubClauseByIdQuery(subClauseId, tenant, transaction);
     (clausesStruct as any)[
       clausesStructMap.get(subClause.clause_id!)
     ].dataValues.subClauses.push(subClause);
@@ -353,9 +347,9 @@ export const getAllAnnexesWithCategoriesQuery = async (
         ...(transaction ? { transaction } : {}),
       }
     )) as [
-      Partial<AnnexCategoryStructISOModel & AnnexCategoryISOModel>[],
-      number,
-    ];
+        Partial<AnnexCategoryStructISOModel & AnnexCategoryISOModel>[],
+        number
+      ];
     (
       annex as AnnexStructISOModel & {
         annexCategories: Partial<
@@ -415,8 +409,7 @@ export const getAnnexCategoryByIdForProjectQuery = async (
     }
   )) as [{ id: number }[], number];
   const annexCategories = await getAnnexCategoriesByIdQuery(
-    _annexCategoryId[0][0].id,
-    tenant
+    _annexCategoryId[0][0].id, tenant
   );
   return annexCategories;
 };
@@ -451,9 +444,9 @@ export const getAnnexCategoriesByIdQuery = async (
       ...(transaction ? { transaction } : {}),
     }
   )) as [
-    Partial<AnnexCategoryStructISOModel & AnnexCategoryISOModel>[],
-    number,
-  ];
+      Partial<AnnexCategoryStructISOModel & AnnexCategoryISOModel>[],
+      number
+    ];
   const annexCategory = annexCategories[0][0];
   (annexCategory as any).risks = [];
   const risks = (await sequelize.query(
@@ -480,8 +473,7 @@ export const getAnnexesByProjectIdQuery = async (
     }
   )) as [{ id: number }[], number];
   const rc = await getReferenceControlsQuery(
-    annexCategoryIds[0].map((annexCategory) => annexCategory.id),
-    tenant
+    annexCategoryIds[0].map((annexCategory) => annexCategory.id), tenant
   );
   return rc;
 };
@@ -492,8 +484,7 @@ export const getReferenceControlsQuery = async (
   transaction: Transaction | null = null
 ) => {
   const annexesStruct = (await getAllAnnexesQuery(
-    tenant,
-    transaction
+    tenant, transaction
   )) as (AnnexStructISOModel &
     Partial<AnnexCategoryISOModel & AnnexCategoryStructISOModel>[])[]; // wrong type
   let annexStructMap = new Map();
@@ -719,9 +710,7 @@ export const createISOFrameworkQuery = async (
 
 export const updateSubClauseQuery = async (
   id: number,
-  subClause: Partial<
-    SubClauseISOModel & { risksDelete: string; risksMitigated: string }
-  >,
+  subClause: Partial<SubClauseISOModel & { risksDelete: string; risksMitigated: string }>,
   uploadedFiles: {
     id: string;
     fileName: string;
@@ -773,7 +762,10 @@ export const updateSubClauseQuery = async (
       if (field === "evidence_links") {
         updateSubClause["evidence_links"] = JSON.stringify(currentFiles);
         acc.push(`${field} = :${field}`);
-      } else if (subClause[field as keyof SubClauseISO] != undefined) {
+      } else if (
+        subClause[field as keyof SubClauseISO] != undefined &&
+        subClause[field as keyof SubClauseISO]
+      ) {
         updateSubClause[field as keyof SubClauseISO] =
           subClause[field as keyof SubClauseISO];
         acc.push(`${field} = :${field}`);
@@ -790,18 +782,20 @@ export const updateSubClauseQuery = async (
 
   updateSubClause.id = id;
 
-  const result = (await sequelize.query(query, {
+  const result = await sequelize.query(query, {
     replacements: updateSubClause,
     // mapToModel: true,
     // model: SubClauseISOModel,
     // type: QueryTypes.UPDATE,
     transaction,
-  })) as [SubClauseISOModel[], number];
+  }) as [SubClauseISOModel[], number];
   const subClauseResult = result[0][0];
   (subClauseResult as any).risks = [];
 
   // update the risks
-  const risksDeleted = JSON.parse(subClause.risksDelete || "[]") as number[];
+  const risksDeleted = JSON.parse(
+    subClause.risksDelete || "[]"
+  ) as number[];
   const risksMitigated = JSON.parse(
     subClause.risksMitigated || "[]"
   ) as number[];
