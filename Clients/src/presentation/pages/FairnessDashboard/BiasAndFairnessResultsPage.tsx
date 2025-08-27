@@ -103,9 +103,12 @@ export default function BiasAndFairnessResultsPage() {
     // Check if we have results from the evaluation
     if (metrics?.results?.fairness_metrics) {
       Object.entries(metrics.results.fairness_metrics).forEach(([key, value]) => {
-        if (key.endsWith(`_${attribute}`) && typeof value === 'object' && 'value' in value) {
+        if (key.endsWith(`_${attribute}`) && typeof value === 'object' && value !== null && 'value' in value) {
           const metricName = key.replace(`_${attribute}`, '');
-          attributeMetrics[metricName] = (value as any).value;
+          const metricValue = (value as { value: number }).value;
+          if (typeof metricValue === 'number') {
+            attributeMetrics[metricName] = metricValue;
+          }
         }
       });
     }
@@ -207,7 +210,7 @@ export default function BiasAndFairnessResultsPage() {
                   <Card sx={{ backgroundColor: "#f8fafc" }}>
                     <CardContent sx={{ p: 2, textAlign: "center" }}>
                       <Typography variant="h6" sx={{ color: "#13715B", fontWeight: 600 }}>
-                        {typeof value === 'number' ? (value * 100).toFixed(1) + '%' : value}
+                        {typeof value === 'number' ? (value * 100).toFixed(1) + '%' : String(value)}
                       </Typography>
                       <Typography variant="body2" sx={{ color: "#6B7280", textTransform: "capitalize" }}>
                         {metric.replace('_', ' ')}
