@@ -11,13 +11,8 @@
  *   - `vendorRisksSummary` {Object} - The summary of vendor risks categorized by risk levels.
  *   - `refetchVendorRisks` {Function} - Function to manually refetch vendor risks data.
  */
-<<<<<<< HEAD
-import { useEffect, useState, useCallback, useMemo } from "react";
-import { getEntityById } from "../repository/entity.repository";
-=======
 import { useQuery } from "@tanstack/react-query";
 import { useMemo } from "react";
->>>>>>> upstream/develop
 import { convertToCamelCaseRiskKey } from "../tools/stringUtil";
 import { VendorRisk } from "../../domain/types/VendorRisk";
 
@@ -30,35 +25,6 @@ export const vendorRiskQueryKeys = {
 };
 
 const useVendorRisks = ({ projectId, vendorId }: { projectId?: string | null; vendorId?: string | null }) => {
-<<<<<<< HEAD
-  const [vendorRisks, setVendorRisks] = useState<VendorRisk[]>([]);
-  const [loadingVendorRisks, setLoadingVendorRisks] = useState<boolean>(true);
-  const [error, setError] = useState<string | boolean>(false);
-
-  const fetchVendorRisks = useCallback(async () => {
-    setLoadingVendorRisks(true);
-    try {
-      const response = await getEntityById({
-        routeUrl: `/vendorRisks/all`,
-      });
-      if (response?.data) {
-        setVendorRisks(response?.data);
-      }
-    } catch (err) {
-      if (err instanceof Error) {
-        setError(`Request failed: ${err.message}`);
-      } else {
-        setError(`Request failed`);
-      }
-    } finally {
-      setLoadingVendorRisks(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    fetchVendorRisks();
-  }, [fetchVendorRisks]);
-=======
   const {
     data: vendorRisks = [],
     isLoading: loadingVendorRisks,
@@ -73,7 +39,6 @@ const useVendorRisks = ({ projectId, vendorId }: { projectId?: string | null; ve
     staleTime: 5 * 60 * 1000, // 5 minutes
     gcTime: 10 * 60 * 1000,   // 10 minutes
   });
->>>>>>> upstream/develop
 
   // Filter risks based on projectId and vendorId
   const filteredVendorRisks = useMemo(() => {

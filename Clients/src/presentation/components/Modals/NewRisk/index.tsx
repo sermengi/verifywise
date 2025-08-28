@@ -34,11 +34,8 @@ import { RiskLikelihood, RiskSeverity } from "../../RiskLevel/riskValues";
 import { VerifyWiseContext } from "../../../../application/contexts/VerifyWise.context";
 import allowedRoles from "../../../../application/constants/permissions";
 import { SelectChangeEvent } from "@mui/material";
-<<<<<<< HEAD
-=======
 import { useCreateVendorRisk, useUpdateVendorRisk } from "../../../../application/hooks/useVendorRiskMutations";
 import { useAuth } from "../../../../application/hooks/useAuth";
->>>>>>> upstream/develop
 const RiskLevel = lazy(() => import("../../RiskLevel"));
 
 interface ExistingRisk {
@@ -315,14 +312,7 @@ const AddNewRisk: React.FC<AddNewRiskProps> = ({
   const createRisk = async (riskDetails: object) => {
     setIsSubmitting(true);
     try {
-<<<<<<< HEAD
-      const response = await createNewUser({
-        routeUrl: "/vendorRisks",
-        body: riskDetails,
-      });
-=======
       const response = await createVendorRiskMutation.mutateAsync(riskDetails);
->>>>>>> upstream/develop
 
       if (response.status === 201) {
         setAlert({
@@ -369,15 +359,9 @@ const AddNewRisk: React.FC<AddNewRiskProps> = ({
   const updateRisk = async (riskId: number, updatedRiskDetails: object) => {
     setIsSubmitting(true);
     try {
-<<<<<<< HEAD
-      const response = await updateEntityById({
-        routeUrl: `/vendorRisks/${riskId}`,
-        body: updatedRiskDetails,
-=======
       const response = await updateVendorRiskMutation.mutateAsync({
         id: riskId,
         data: updatedRiskDetails,
->>>>>>> upstream/develop
       });
 
       if (response.status === 202) {

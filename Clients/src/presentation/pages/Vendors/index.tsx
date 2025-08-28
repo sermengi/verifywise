@@ -10,18 +10,7 @@ import {
 import PageBreadcrumbs from "../../components/Breadcrumbs/PageBreadcrumbs";
 import TableWithPlaceholder from "../../components/Table/WithPlaceholder/index";
 import RiskTable from "../../components/Table/RisksTable";
-<<<<<<< HEAD
-import {
-  Suspense,
-  useCallback,
-  useContext,
-  useEffect,
-  useState,
-  useMemo,
-} from "react";
-=======
 import { Suspense, useEffect, useState, useMemo } from "react";
->>>>>>> upstream/develop
 import AddNewVendor from "../../components/Modals/NewVendor";
 import singleTheme from "../../themes/v1SingleTheme";
 import { VerifyWiseContext } from "../../../application/contexts/VerifyWise.context";
@@ -51,15 +40,11 @@ import Select from "../../components/Inputs/Select";
 import allowedRoles from "../../../application/constants/permissions";
 import HelperDrawer from "../../components/Drawer/HelperDrawer";
 import vendorHelpContent from "../../../presentation/helpers/vendor-help.html?raw";
-<<<<<<< HEAD
-import { getAllProjects } from "../../../application/repository/project.repository";
-=======
 import { useVendors, useDeleteVendor, VendorDetails } from "../../../application/hooks/useVendors";
 import { useProjects } from "../../../application/hooks/useProjects";
 import { useDeleteVendorRisk } from "../../../application/hooks/useVendorRiskMutations";
 import { getVendorById } from "../../../application/repository/vendor.repository";
 import { getVendorRiskById } from "../../../application/repository/vendorRisk.repository";
->>>>>>> upstream/develop
 
 interface ExistingRisk {
   id?: number;
@@ -84,21 +69,12 @@ const Vendors = () => {
   const [isRiskModalOpen, setIsRiskModalOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [value, setValue] = useState("1");
-<<<<<<< HEAD
-  const [projects, setProjects] = useState<Project[]>([]);
-  const [vendors, setVendors] = useState<VendorDetails[]>([]);
-  const { users, userRoleName } = useContext(VerifyWiseContext);
-  const [selectedVendor, setSelectedVendor] = useState<VendorDetails | null>(
-    null
-  );
-=======
   const authToken = useSelector((state: AppState) => state.auth.authToken);
   const userToken = extractUserToken(authToken);
   const userRoleName = userToken?.roleName || "";
   const { users } = useUsers();
 
   const [selectedVendor, setSelectedVendor] = useState<any>(null);
->>>>>>> upstream/develop
   const [selectedRisk, setSelectedRisk] = useState<ExistingRisk | null>(null);
   const [selectedProjectId, setSelectedProjectId] = useState<string>("all");
   const [selectedVendorId, setSelectedVendorId] = useState<string>("all");
@@ -150,57 +126,6 @@ const Vendors = () => {
   const handleChange = (_: React.SyntheticEvent, newValue: string) => {
     setValue(newValue);
   };
-<<<<<<< HEAD
-  useEffect(() => {
-    const fetchProjects = async () => {
-      try {
-        const response = await getAllProjects();
-        if (response?.data && response.data.length > 0) {
-          setProjects(response.data);
-          setSelectedProjectId("all"); // Always default to 'all' after fetching
-        }
-      } catch (error) {
-        console.error("Failed to fetch projects:", error);
-      }
-    };
-    fetchProjects();
-  }, []);
-
-  const fetchVendors = useCallback(async () => {
-    const signal = createAbortController();
-    if (signal.aborted) return;
-    setIsVendorsLoading(true);
-    if (!selectedProjectId) return;
-    try {
-      const routeUrl =
-        selectedProjectId === "all"
-          ? "/vendors"
-          : `/vendors/project-id/${selectedProjectId}`;
-      const response = await getAllEntities({
-        routeUrl,
-        signal,
-      });
-      if (response?.data) {
-        setVendors(response.data);
-      }
-    } catch (error) {
-      console.error("Error fetching vendors:", error);
-    } finally {
-      setIsVendorsLoading(false);
-    }
-  }, [selectedProjectId]);
-
-  useEffect(() => {
-    if (value === "1") {
-      fetchVendors();
-      return () => {
-        controller?.abort();
-      };
-    }
-    // No fetch on Risks tab
-  }, [selectedProjectId, value]);
-=======
->>>>>>> upstream/develop
 
   useEffect(() => {
     if (allVisible) {
@@ -212,13 +137,7 @@ const Vendors = () => {
     setIsSubmitting(true);
 
     try {
-<<<<<<< HEAD
-      const response = await deleteEntityById({
-        routeUrl: `/vendors/${vendorId}`,
-      });
-=======
       const response = await deleteVendorMutation.mutateAsync(vendorId);
->>>>>>> upstream/develop
 
       if (response.status === 202) {
         setAlert({
@@ -278,14 +197,7 @@ const Vendors = () => {
     setIsSubmitting(true);
 
     try {
-<<<<<<< HEAD
-      const response = await deleteEntityById({
-        routeUrl: `/vendorRisks/${riskId}`,
-        signal,
-      });
-=======
       const response = await deleteVendorRiskMutation.mutateAsync(riskId);
->>>>>>> upstream/develop
 
       if (response.status === 202) {
         setAlert({

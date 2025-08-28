@@ -42,10 +42,7 @@ import CustomizableButton from "../../../vw-v2-components/Buttons";
 import SaveIcon from "@mui/icons-material/Save";
 import { KeyboardArrowDown } from "@mui/icons-material";
 import allowedRoles from "../../../../application/constants/permissions";
-<<<<<<< HEAD
-=======
 import { useCreateVendor, useUpdateVendor } from "../../../../application/hooks/useVendors";
->>>>>>> upstream/develop
 
 export interface VendorDetails {
   id?: number;
@@ -126,11 +123,6 @@ const AddNewVendor: React.FC<AddNewVendorProps> = ({
   const [projectOptions, setProjectOptions] = useState<
     { _id: number; name: string }[]
   >([]);
-<<<<<<< HEAD
-  const { dashboardValues, users, userRoleName } =
-    useContext(VerifyWiseContext);
-  const { projects } = dashboardValues;
-=======
   const { userRoleName } = useAuth();
   const { users } = useUsers();
   const { data: projects } = useProjects();
@@ -138,7 +130,6 @@ const AddNewVendor: React.FC<AddNewVendorProps> = ({
   // TanStack Query hooks
   const createVendorMutation = useCreateVendor();
   const updateVendorMutation = useUpdateVendor();
->>>>>>> upstream/develop
 
   const isEditingDisabled = !allowedRoles.vendors.edit.includes(userRoleName);
 
@@ -363,14 +354,7 @@ const AddNewVendor: React.FC<AddNewVendorProps> = ({
   const createVendor = async (vendorDetails: object) => {
     setIsSubmitting(true);
     try {
-<<<<<<< HEAD
-      const response = await createNewUser({
-        routeUrl: "/vendors",
-        body: vendorDetails,
-      });
-=======
       const response = await createVendorMutation.mutateAsync(vendorDetails);
->>>>>>> upstream/develop
 
       if (response.status === 201) {
         setAlert({
@@ -421,15 +405,9 @@ const AddNewVendor: React.FC<AddNewVendorProps> = ({
   ) => {
     setIsSubmitting(true);
     try {
-<<<<<<< HEAD
-      const response = await updateEntityById({
-        routeUrl: `/vendors/${vendorId}`,
-        body: updatedVendorDetails,
-=======
       const response = await updateVendorMutation.mutateAsync({
         id: vendorId,
         data: updatedVendorDetails,
->>>>>>> upstream/develop
       });
 
       if (response.status === 202) {
