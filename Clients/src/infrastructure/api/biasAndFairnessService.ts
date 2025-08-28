@@ -90,17 +90,53 @@ export const biasAndFairnessService = {
   },
 
   /**
-   * Creates config and runs bias and fairness evaluation
+   * Test endpoint to verify routing is working
    */
-  async createConfigAndEvaluate(payload: BiasAndFairnessConfigPayload): Promise<EvaluationResponse> {
-    const response = await CustomAxios.post("/bias_and_fairness/evaluate/config", payload, {
+  async testEndpoint(): Promise<any> {
+    // Debug: Check if we have a token
+    const state = (window as any).store?.getState?.();
+    const token = state?.auth?.authToken;
+    console.log("DEBUG: Token in store:", token ? "EXISTS" : "MISSING");
+    console.log("DEBUG: Token value:", token);
+    
+    const response = await CustomAxios.post("/bias_and_fairness/evaluation/test", {}, {
       headers: {
         "Content-Type": "application/json",
       },
-      timeout: 300000, // 5 minutes timeout
+      timeout: 10000, // 10 seconds timeout
     });
 
     return response.data;
+  },
+
+  /**
+   * Creates config and runs bias and fairness evaluation
+   */
+  async createConfigAndEvaluate(payload: BiasAndFairnessConfigPayload): Promise<EvaluationResponse> {
+    console.log("🚀 Starting createConfigAndEvaluate...");
+    console.log("📡 URL:", "/bias_and_fairness/evaluate/config");
+    console.log("📦 Payload:", payload);
+    
+    try {
+      console.log("📤 Sending request...");
+      const response = await CustomAxios.post("/bias_and_fairness/evaluate/config", payload, {
+        headers: {
+          "Content-Type": "application/json",
+        },
+        timeout: 300000, // 5 minutes timeout
+      });
+      console.log("✅ Response received:", response);
+      return response.data;
+    } catch (error) {
+      console.error("❌ Error in createConfigAndEvaluate:", error);
+      console.error("❌ Error details:", {
+        message: error.message,
+        status: error.response?.status,
+        data: error.response?.data,
+        headers: error.response?.headers
+      });
+      throw error;
+    }
   },
 
   /**

@@ -86,11 +86,24 @@ async def create_config_and_evaluate(
     """
     Create config.yaml file and run bias and fairness evaluation.
     """
-    return await create_config_and_run_evaluation_controller(
-        background_tasks=background_tasks,
-        config_data=config_data,
-        tenant=request.headers["x-tenant-id"]
-    )
+    print(f"=== ROUTER: /evaluate/config endpoint hit ===")
+    print(f"=== ROUTER: Headers: {request.headers}")
+    print(f"=== ROUTER: Config data: {config_data}")
+    
+    try:
+        print(f"=== Calling create_config_and_run_evaluation_controller ===")
+        result = await create_config_and_run_evaluation_controller(
+            background_tasks=background_tasks,
+            config_data=config_data,
+            tenant=request.headers["x-tenant-id"]
+        )
+        print(f"=== Controller returned: {result} ===")
+        return result
+    except Exception as e:
+        print(f"=== ERROR in router: {e} ===")
+        import traceback
+        print(f"=== ERROR traceback: {traceback.format_exc()} ===")
+        raise HTTPException(status_code=500, detail=str(e))
 
 @router.get("/evaluate/status/{evaluation_id}")
 async def get_evaluation_status(evaluation_id: str, request: Request):
@@ -143,3 +156,13 @@ async def get_available_bias_methods():
         "individual_fairness",
         "group_fairness"
     ]}
+
+@router.post("/evaluation/test")
+async def test_evaluation_endpoint(request: Request):
+    """
+    Simple test endpoint to verify routing is working.
+    """
+    print(f"=== TEST ENDPOINT HIT ===")
+    print(f"=== Headers: {request.headers}")
+    
+    return {"message": "Hi World", "status": "success", "endpoint": "/evaluation/test"}

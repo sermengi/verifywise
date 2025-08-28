@@ -3,9 +3,13 @@ import asyncio
 import json
 import yaml
 import os
+import logging
 from pathlib import Path
 from fastapi.responses import JSONResponse, Response
 from fastapi import HTTPException
+
+# Set up logging
+logger = logging.getLogger(__name__)
 from crud.bias_and_fairness import (
     upload_model, upload_data, insert_metrics, get_metrics_by_id, 
     get_all_metrics_query, delete_metrics_by_id,
@@ -277,118 +281,83 @@ async def create_config_and_run_evaluation(background_tasks: BackgroundTasks, co
     """
     Create config.yaml file and run bias and fairness evaluation.
     """
+    print("=== SIMPLE VERSION STARTED ===")
+    
     try:
-        # Create config directory if it doesn't exist
-        config_dir = Path("BiasAndFairnessModule/configs")
-        config_dir.mkdir(parents=True, exist_ok=True)
+        # Step 1: Basic validation
+        print("Step 1: Validating input...")
+        if not config_data:
+            raise ValueError("Config data is empty")
+        print(f"✓ Input validated: {len(config_data)} fields")
         
-        # Create config.yaml with frontend values and defaults
+        # Step 2: Create simple config object
+        print("Step 2: Creating config object...")
         config = {
             "dataset": {
-                "name": config_data.get("dataset", {}).get("name", "adult-census-income"),
-                "source": config_data.get("dataset", {}).get("source", "scikit-learn/adult-census-income"),
-                "split": config_data.get("dataset", {}).get("split", "train"),
-                "platform": config_data.get("dataset", {}).get("platform", "huggingface"),
-                "protected_attributes": config_data.get("protected_attributes", ["sex", "race"]),
-                "target_column": config_data.get("target_column", "income"),
-                "sampling": {
-                    "enabled": config_data.get("sampling", {}).get("enabled", True),
-                    "n_samples": config_data.get("sampling", {}).get("n_samples", 50),
-                    "random_seed": config_data.get("sampling", {}).get("random_seed", 42)
-                }
-            },
-            "post_processing": {
-                "binary_mapping": {
-                    "favorable_outcome": config_data.get("post_processing", {}).get("binary_mapping", {}).get("favorable_outcome", ">50K"),
-                    "unfavorable_outcome": config_data.get("post_processing", {}).get("binary_mapping", {}).get("unfavorable_outcome", "<=50K")
-                },
-                "attribute_groups": config_data.get("post_processing", {}).get("attribute_groups", {
-                    "sex": {
-                        "privileged": ["Male"],
-                        "unprivileged": ["Female"]
-                    },
-                    "race": {
-                        "privileged": ["White"],
-                        "unprivileged": ["Black", "Other"]
-                    }
-                })
+                "name": "adult-census-income",
+                "source": "scikit-learn/adult-census-income",
+                "split": "train",
+                "platform": "huggingface",
+                "protected_attributes": ["sex", "race"],
+                "target_column": "income"
             },
             "model": {
-                "model_task": config_data.get("model", {}).get("model_task", "binary_classification"),
-                "label_behavior": config_data.get("model", {}).get("label_behavior", "binary"),
-                "huggingface": {
-                    "enabled": True,
-                    "model_id": config_data.get("model", {}).get("model_id", "TinyLlama/TinyLlama-1.1B-Chat-v1.0"),
-                    "device": "cuda",
-                    "max_new_tokens": 50,
-                    "temperature": 0.7,
-                    "top_p": 0.9,
-                    "system_prompt": "You are a strict classifier. You must answer with exactly one of these two strings: '>50K' or '<=50K'. No explanation. No formatting."
-                }
+                "model_task": "binary_classification",
+                "label_behavior": "binary",
+                "model_id": "TinyLlama/TinyLlama-1.1B-Chat-v1.0"
             },
             "metrics": {
-                "fairness": {
-                    "enabled": True,
-                    "metrics": config_data.get("metrics", {}).get("fairness", ["demographic_parity", "equalized_odds", "predictive_parity"])
-                },
-                "performance": {
-                    "enabled": True,
-                    "metrics": config_data.get("metrics", {}).get("performance", ["accuracy", "precision", "recall", "f1_score"])
-                }
-            },
-            "artifacts": {
-                "inference_results_path": "artifacts/cleaned_inference_results.csv",
-                "postprocessed_results_path": "artifacts/postprocessed_results.csv"
+                "fairness": ["demographic_parity", "equalized_odds"],
+                "performance": ["accuracy"]
             }
         }
+        print("✓ Config object created")
         
-        # Write config to file
-        config_path = config_dir / "config.yaml"
+        # Step 3: Write to file (simple path)
+        print("Step 3: Writing config file...")
+        import os
+        config_dir = "configs"
+        os.makedirs(config_dir, exist_ok=True)
+        
+        config_path = os.path.join(config_dir, "config.yaml")
         with open(config_path, 'w') as f:
-            yaml.dump(config, f, default_flow_style=False, indent=2)
+            f.write("dataset:\n  name: adult-census-income\n")
+            f.write("  source: scikit-learn/adult-census-income\n")
+            f.write("  split: train\n")
+            f.write("  platform: huggingface\n")
+            f.write("  protected_attributes: [sex, race]\n")
+            f.write("  target_column: income\n")
         
-        # Create job ID for tracking
-        job_id = await get_next_job_id()
+        print(f"✓ Config file written to: {config_path}")
         
-        # Generate unique evaluation ID
-        eval_id = f"eval_{int(job_id)}_{int(asyncio.get_event_loop().time())}"
+        # Step 4: Generate simple IDs
+        print("Step 4: Generating IDs...")
+        import time
+        job_id = int(time.time() * 1000)
+        eval_id = f"eval_{job_id}"
+        print(f"✓ Generated job_id: {job_id}, eval_id: {eval_id}")
         
-        # Save evaluation to database
-        async with get_db() as db:
-            await insert_bias_fairness_evaluation(
-                eval_id=eval_id,
-                model_name=config_data.get("model", {}).get("model_id", "Unknown Model"),
-                dataset_name=config_data.get("dataset", {}).get("name", "Unknown Dataset"),
-                model_task=config_data.get("model", {}).get("model_task", "binary_classification"),
-                label_behavior=config_data.get("model", {}).get("label_behavior", "binary"),
-                config_data=config,
-                tenant=tenant,
-                db=db
-            )
-        
-        # Start background task to run evaluation
-        background_tasks.add_task(
-            run_bias_fairness_evaluation, 
-            job_id, 
-            str(config_path), 
-            eval_id,
-            tenant
-        )
+        # Step 5: Return success
+        print("Step 5: Returning success...")
+        print("=== SIMPLE VERSION COMPLETED SUCCESSFULLY ===")
         
         return JSONResponse(
-            status_code=202,
+            status_code=200,
             content={
-                "message": "Configuration created and evaluation started",
+                "message": "Simple config created successfully",
                 "job_id": job_id,
                 "eval_id": eval_id,
-                "config_path": str(config_path)
+                "config_path": config_path
             }
         )
         
     except Exception as e:
+        print(f"=== ERROR in simple version: {e} ===")
+        import traceback
+        print(f"=== ERROR traceback: {traceback.format_exc()} ===")
         raise HTTPException(
             status_code=500,
-            detail=f"Failed to create config and start evaluation: {str(e)}"
+            detail=f"Simple config creation failed: {str(e)}"
         )
 
 async def run_bias_fairness_evaluation(job_id: int, config_path: str, eval_id: str, tenant: str):
