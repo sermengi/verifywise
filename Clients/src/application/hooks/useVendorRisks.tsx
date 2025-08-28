@@ -1,5 +1,5 @@
 /**
- * Custom hook to fetch and manage vendor risks data.
+ * Custom hook to fetch and manage vendor risks data using TanStack Query.
  *
  * @param {Object} params - The parameters object.
  * @param {string} [params.projectId] - The optional project ID to filter vendor risks.
@@ -11,12 +11,26 @@
  *   - `vendorRisksSummary` {Object} - The summary of vendor risks categorized by risk levels.
  *   - `refetchVendorRisks` {Function} - Function to manually refetch vendor risks data.
  */
+<<<<<<< HEAD
 import { useEffect, useState, useCallback, useMemo } from "react";
 import { getEntityById } from "../repository/entity.repository";
+=======
+import { useQuery } from "@tanstack/react-query";
+import { useMemo } from "react";
+>>>>>>> upstream/develop
 import { convertToCamelCaseRiskKey } from "../tools/stringUtil";
 import { VendorRisk } from "../../domain/types/VendorRisk";
 
+// Query keys for vendor risks
+export const vendorRiskQueryKeys = {
+  all: ['vendorRisks'] as const,
+  lists: () => [...vendorRiskQueryKeys.all, 'list'] as const,
+  list: (filters: { projectId?: string | null; vendorId?: string | null }) =>
+    [...vendorRiskQueryKeys.lists(), filters] as const,
+};
+
 const useVendorRisks = ({ projectId, vendorId }: { projectId?: string | null; vendorId?: string | null }) => {
+<<<<<<< HEAD
   const [vendorRisks, setVendorRisks] = useState<VendorRisk[]>([]);
   const [loadingVendorRisks, setLoadingVendorRisks] = useState<boolean>(true);
   const [error, setError] = useState<string | boolean>(false);
@@ -44,6 +58,22 @@ const useVendorRisks = ({ projectId, vendorId }: { projectId?: string | null; ve
   useEffect(() => {
     fetchVendorRisks();
   }, [fetchVendorRisks]);
+=======
+  const {
+    data: vendorRisks = [],
+    isLoading: loadingVendorRisks,
+    error,
+    refetch: refetchVendorRisks,
+  } = useQuery({
+    queryKey: vendorRiskQueryKeys.list({ projectId, vendorId }),
+    queryFn: async (): Promise<VendorRisk[]> => {
+      const response = await getAllVendorRisks();
+      return response?.data || [];
+    },
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    gcTime: 10 * 60 * 1000,   // 10 minutes
+  });
+>>>>>>> upstream/develop
 
   // Filter risks based on projectId and vendorId
   const filteredVendorRisks = useMemo(() => {
@@ -74,10 +104,10 @@ const useVendorRisks = ({ projectId, vendorId }: { projectId?: string | null; ve
 
   return {
     loadingVendorRisks,
-    error,
+    error: error ? `Request failed: ${error.message}` : false,
     vendorRisks: filteredVendorRisks,
     vendorRisksSummary,
-    refetchVendorRisks: fetchVendorRisks,
+    refetchVendorRisks,
   };
 };
 

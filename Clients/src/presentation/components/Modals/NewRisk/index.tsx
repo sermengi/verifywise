@@ -34,6 +34,11 @@ import { RiskLikelihood, RiskSeverity } from "../../RiskLevel/riskValues";
 import { VerifyWiseContext } from "../../../../application/contexts/VerifyWise.context";
 import allowedRoles from "../../../../application/constants/permissions";
 import { SelectChangeEvent } from "@mui/material";
+<<<<<<< HEAD
+=======
+import { useCreateVendorRisk, useUpdateVendorRisk } from "../../../../application/hooks/useVendorRiskMutations";
+import { useAuth } from "../../../../application/hooks/useAuth";
+>>>>>>> upstream/develop
 const RiskLevel = lazy(() => import("../../RiskLevel"));
 
 interface ExistingRisk {
@@ -111,7 +116,7 @@ const AddNewRisk: React.FC<AddNewRiskProps> = ({
   setIsOpen,
   value,
   existingRisk,
-  onSuccess = () => {},
+  onSuccess = () => { },
   vendors,
 }) => {
   const theme = useTheme();
@@ -120,9 +125,9 @@ const AddNewRisk: React.FC<AddNewRiskProps> = ({
   const VENDOR_OPTIONS =
     vendors?.length > 0
       ? vendors.map((vendor: any) => ({
-          _id: vendor.id,
-          name: vendor.vendor_name,
-        }))
+        _id: vendor.id,
+        name: vendor.vendor_name,
+      }))
       : [{ _id: "no-vendor", name: "No Vendor Exists" }];
 
   const [values, setValues] = useState(initialState);
@@ -139,6 +144,10 @@ const AddNewRisk: React.FC<AddNewRiskProps> = ({
     _id: String(user.id),
     name: `${user.name} ${user.surname}`,
   }));
+
+  // TanStack Query hooks
+  const createVendorRiskMutation = useCreateVendorRisk();
+  const updateVendorRiskMutation = useUpdateVendorRisk();
   useEffect(() => {
     if (!isOpen) {
       setValues(initialState);
@@ -306,10 +315,14 @@ const AddNewRisk: React.FC<AddNewRiskProps> = ({
   const createRisk = async (riskDetails: object) => {
     setIsSubmitting(true);
     try {
+<<<<<<< HEAD
       const response = await createNewUser({
         routeUrl: "/vendorRisks",
         body: riskDetails,
       });
+=======
+      const response = await createVendorRiskMutation.mutateAsync(riskDetails);
+>>>>>>> upstream/develop
 
       if (response.status === 201) {
         setAlert({
@@ -336,9 +349,8 @@ const AddNewRisk: React.FC<AddNewRiskProps> = ({
 
       setAlert({
         variant: "error",
-        body: `An error occurred: ${
-          (error as Error).message || "Please try again."
-        }`,
+        body: `An error occurred: ${(error as Error).message || "Please try again."
+          }`,
       });
 
       setTimeout(() => setAlert(null), 3000);
@@ -357,9 +369,15 @@ const AddNewRisk: React.FC<AddNewRiskProps> = ({
   const updateRisk = async (riskId: number, updatedRiskDetails: object) => {
     setIsSubmitting(true);
     try {
+<<<<<<< HEAD
       const response = await updateEntityById({
         routeUrl: `/vendorRisks/${riskId}`,
         body: updatedRiskDetails,
+=======
+      const response = await updateVendorRiskMutation.mutateAsync({
+        id: riskId,
+        data: updatedRiskDetails,
+>>>>>>> upstream/develop
       });
 
       if (response.status === 202) {
@@ -387,9 +405,8 @@ const AddNewRisk: React.FC<AddNewRiskProps> = ({
 
       setAlert({
         variant: "error",
-        body: `An error occurred: ${
-          (error as Error).message || "Please try again."
-        }`,
+        body: `An error occurred: ${(error as Error).message || "Please try again."
+          }`,
       });
 
       setTimeout(() => setAlert(null), 3000);
